@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -47,7 +48,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7T6-qE-FLy">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Module B" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7T6-qE-FLy">
                                                     <rect key="frame" x="15" y="0.0" width="345" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -56,6 +57,9 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="ipn-In-NgX" kind="show" id="Gdc-Gz-xwU"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -124,6 +128,57 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="370" y="387"/>
+        </scene>
+        <!--ModuleB View Controller-->
+        <scene sceneID="CNu-bZ-oje">
+            <objects>
+                <viewController id="ipn-In-NgX" customClass="ModuleBViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="zHb-TC-6gu"/>
+                        <viewControllerLayoutGuide type="bottom" id="bu0-Ld-P8k"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="c4N-LS-Wxe" customClass="GLKView">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="15" minValue="15" maxValue="20" translatesAutoresizingMaskIntoConstraints="NO" id="dsl-28-zhi">
+                                <rect key="frame" x="14" y="119" width="347" height="31"/>
+                                <connections>
+                                    <action selector="frequencyChanged:" destination="ipn-In-NgX" eventType="valueChanged" id="1bi-gK-i7f"/>
+                                </connections>
+                            </slider>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Not Set" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yEe-b7-3uc">
+                                <rect key="frame" x="158.5" y="90" width="58" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Not Gesturing" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8YD-UR-hsc">
+                                <rect key="frame" x="133.5" y="171" width="107" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="dsl-28-zhi" firstAttribute="trailing" secondItem="c4N-LS-Wxe" secondAttribute="trailingMargin" id="4fL-KJ-Jfg"/>
+                            <constraint firstItem="yEe-b7-3uc" firstAttribute="centerX" secondItem="dsl-28-zhi" secondAttribute="centerX" id="D2R-dL-zd3"/>
+                            <constraint firstItem="dsl-28-zhi" firstAttribute="top" secondItem="yEe-b7-3uc" secondAttribute="bottom" constant="8" symbolic="YES" id="INq-sl-JE6"/>
+                            <constraint firstItem="dsl-28-zhi" firstAttribute="top" secondItem="zHb-TC-6gu" secondAttribute="bottom" constant="55" id="U2F-2T-crd"/>
+                            <constraint firstItem="dsl-28-zhi" firstAttribute="leading" secondItem="c4N-LS-Wxe" secondAttribute="leadingMargin" id="ej7-KH-0J3"/>
+                            <constraint firstItem="8YD-UR-hsc" firstAttribute="centerX" secondItem="c4N-LS-Wxe" secondAttribute="centerX" id="uzj-uh-tuD"/>
+                            <constraint firstItem="8YD-UR-hsc" firstAttribute="top" secondItem="dsl-28-zhi" secondAttribute="bottom" constant="22" id="vc9-jB-iU4"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="freqLabel" destination="yEe-b7-3uc" id="HhA-uE-Seo"/>
+                        <outlet property="gestureLabel" destination="8YD-UR-hsc" id="Gwf-NA-M30"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hnN-1M-oAA" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-774" y="-346"/>
         </scene>
     </scenes>
 </document>
