@@ -21,6 +21,11 @@
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
 @property (strong, nonatomic) FFTHelper *fftHelper;
 @property (strong, nonatomic) AudioFileReader *fileReader;
+@property (nonatomic) NSInteger frequencyOne;
+@property (nonatomic) NSInteger frequencyTwo;
+@property (weak, nonatomic) IBOutlet UILabel *labelOne;
+@property (weak, nonatomic) IBOutlet UILabel *labelTwo;
+
 @end
 
 
@@ -81,27 +86,12 @@
     
     [self.graphHelper setScreenBoundsBottomHalf];
     
-    [self.fileReader play];
-    self.fileReader.currentTime = 0.0;
     
     __block ViewController * __weak  weakSelf = self;
     
-    [self.audioManager setOutputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels)
-     {
-         //         float *data2 = malloc(sizeof(float)*numFrames/2);
-         [weakSelf.fileReader retrieveFreshAudio:data numFrames:numFrames numChannels:numChannels];
-         //         for(int i = 0; i < numFrames; i++){
-         //            if(i % 2 == 0)
-         //                data2[i/2] = data[i];
-         //         }
-         [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames/2];
-         //         NSLog(@"Time: %f", weakSelf.fileReader.currentTime);
-         //         free(data2);
-     }];
-    
-    //    [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
-    //        [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
-    //    }];
+    [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
+            [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
+        }];
     
     [self.audioManager play];
 }
@@ -121,47 +111,40 @@
     // get audio stream data
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
     float* maximum = malloc(sizeof(float)*20);
+    NSMutableArray *indexes = [NSMutableArray array];
     float* fftMagnitude = malloc(sizeof(float)*BUFFER_SIZE/2);
     
-    [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
-    
-    //send off for graphing
-    [self.graphHelper setGraphData:arrayData
-                    withDataLength:BUFFER_SIZE
-                     forGraphIndex:0];
-    
-    // take forward FFT
-    [self.fftHelper performForwardFFTWithData:arrayData
-                   andCopydBMagnitudeToBuffer:fftMagnitude];
-    
     // Find max for maximum array
-    NSInteger batchNumber = 20;
-    NSInteger batchLength = BUFFER_SIZE/40;
-    for(int k = 0; k < batchNumber; k++){
-        NSMutableArray *tempBatch = [NSMutableArray arrayWithCapacity:batchLength];
-        for(int i = 0; i <= batchLength; i++){
-            NSNumber * number = [[NSNumber alloc] initWithFloat:fftMagnitude[i+batchLength*k]];
+    
+    NSInteger windowLength = 49;
+    NSInteger fftSize = (BUFFER_SIZE/2) - 49;
+    
+    for(int k = 0; k < fftSize; k++){
+        
+        NSMutableArray *tempBatch = [NSMutableArray arrayWithCapacity:windowLength];
+        
+        for(int i = 0; i <= windowLength; i++){
+            
+            NSNumber * number = [[NSNumber alloc] initWithFloat:fftMagnitude[i+k]];
             [tempBatch addObject:number];
         }
+        
+        NSNumber * medianNumber = [[NSNumber alloc] initWithFloat:fftMagnitude[25]];
         NSNumber *maxNumber = [tempBatch valueForKeyPath:@"@max.self"];
-        maximum[k] = [maxNumber floatValue];
+        
+        if(medianNumber == maxNumber){
+            maximum[k] = [maxNumber floatValue];
+            [indexes addObject:[NSNumber numberWithInteger:k]];
+        }
+
     }
+    _frequencyOne = ((int)[indexes objectAtIndex:0] * 44100) / 512;
+    _frequencyTwo = ((int)[indexes objectAtIndex:0] * 44100) / 512;
     
-    // graph the FFT Data
-    [self.graphHelper setGraphData:fftMagnitude
-                    withDataLength:BUFFER_SIZE/2
-                     forGraphIndex:1
-                 withNormalization:64.0
-                     withZeroValue:-60];
+    self.labelOne.text = [NSString stringWithFormat: @"%ld",(long)_frequencyOne];
+    self.labelTwo.text = [NSString stringWithFormat: @"%ld",(long)_frequencyTwo];
     
-    //Graph with view that is 20 points
-    [self.graphHelper setGraphData:maximum
-                    withDataLength:20
-                     forGraphIndex:2
-                 withNormalization:64.0
-                     withZeroValue:-60];
-    
-    [self.graphHelper update]; // update the graph
+   
     free(arrayData);
     free(maximum);
     free(fftMagnitude);
