@@ -21,10 +21,10 @@
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
 @property (strong, nonatomic) FFTHelper *fftHelper;
 @property (strong, nonatomic) AudioFileReader *fileReader;
-@property (nonatomic) NSInteger frequencyOne;
-@property (nonatomic) NSInteger frequencyTwo;
-@property (weak, nonatomic) IBOutlet UILabel *labelOne;
-@property (weak, nonatomic) IBOutlet UILabel *labelTwo;
+@property (nonatomic) float frequencyOne;
+@property (nonatomic) float frequencyTwo;
+@property (weak, nonatomic) IBOutlet UILabel *freqLabelOne;
+@property (weak, nonatomic) IBOutlet UILabel *freqLabelTwo;
 
 @end
 
@@ -51,7 +51,7 @@
     if(!_graphHelper){
         _graphHelper = [[SMUGraphHelper alloc]initWithController:self
                                         preferredFramesPerSecond:15
-                                                       numGraphs:3
+                                                       numGraphs:1
                                                        plotStyle:PlotStyleSeparated
                                                maxPointsPerGraph:BUFFER_SIZE];
     }
@@ -84,8 +84,8 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     
-    [self.graphHelper setScreenBoundsBottomHalf];
-    
+    [self.graphHelper setFullScreenBounds];
+  
     
     __block ViewController * __weak  weakSelf = self;
     
@@ -103,6 +103,7 @@
     }
 }
 
+
 #pragma mark GLK Inherited Functions
 //  override the GLKViewController update function, from OpenGLES
 - (void)update{
@@ -110,9 +111,18 @@
     
     // get audio stream data
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
-    float* maximum = malloc(sizeof(float)*20);
+    NSMutableArray *maximum = [NSMutableArray array];
     NSMutableArray *indexes = [NSMutableArray array];
     float* fftMagnitude = malloc(sizeof(float)*BUFFER_SIZE/2);
+    
+    
+    [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
+    
+    // take forward FFT
+    [self.fftHelper performForwardFFTWithData:arrayData
+                   andCopydBMagnitudeToBuffer:fftMagnitude];
+    
+
     
     // Find max for maximum array
     
@@ -129,24 +139,33 @@
             [tempBatch addObject:number];
         }
         
-        NSNumber * medianNumber = [[NSNumber alloc] initWithFloat:fftMagnitude[25]];
+        //NSNumber * medianNumber = [[NSNumber alloc] initWithFloat:fftMagnitude[25]];
+        NSNumber * medianNumber = [tempBatch objectAtIndex:25];
         NSNumber *maxNumber = [tempBatch valueForKeyPath:@"@max.self"];
         
         if(medianNumber == maxNumber){
-            maximum[k] = [maxNumber floatValue];
+            [maximum addObject: maxNumber];
             [indexes addObject:[NSNumber numberWithInteger:k]];
         }
 
     }
+    
     _frequencyOne = ((int)[indexes objectAtIndex:0] * 44100) / 512;
-    _frequencyTwo = ((int)[indexes objectAtIndex:0] * 44100) / 512;
+    _frequencyTwo = ((int)[indexes objectAtIndex:1] * 44100) / 512;
     
-    self.labelOne.text = [NSString stringWithFormat: @"%ld",(long)_frequencyOne];
-    self.labelTwo.text = [NSString stringWithFormat: @"%ld",(long)_frequencyTwo];
+    self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyOne];
+    self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyTwo];
     
+    // graph the FFT Data
+    [self.graphHelper setGraphData:fftMagnitude
+                    withDataLength:BUFFER_SIZE/2
+                     forGraphIndex:0
+                 withNormalization:64.0
+                     withZeroValue:-60];
+    
+
    
     free(arrayData);
-    free(maximum);
     free(fftMagnitude);
 }
 
