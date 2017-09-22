@@ -111,9 +111,10 @@
     
     // get audio stream data
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
+    float* fftMagnitude = malloc(sizeof(float)*BUFFER_SIZE/2);
     NSMutableArray *maximum = [NSMutableArray array];
     NSMutableArray *indexes = [NSMutableArray array];
-    float* fftMagnitude = malloc(sizeof(float)*BUFFER_SIZE/2);
+    NSMutableArray *fftData = [NSMutableArray array];
     
     
     [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
@@ -124,8 +125,6 @@
     
 
     
-    // Find max for maximum array
-    
     NSInteger windowLength = 49;
     NSInteger fftBufferSize = BUFFER_SIZE/2;
     NSInteger fftSize = (BUFFER_SIZE/2) - 49;
@@ -133,6 +132,7 @@
     for(int k = 0; k < fftSize; k++){
         
         NSMutableArray *tempBatch = [NSMutableArray arrayWithCapacity:windowLength];
+        [fftData addObject:[NSNumber numberWithFloat: fftMagnitude[k]]];
         
         for(int i = 0; i <= windowLength; i++){
           
@@ -163,9 +163,23 @@
 
     }
     
+    NSNumber *trueMaxNumber = [fftData valueForKeyPath:@"@max.self"];
+    NSSet *numberSet = [NSSet setWithArray:fftData];
     
-    _frequencyOne = ([[indexes objectAtIndex:0] intValue] * ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
-    _frequencyTwo = ([[indexes objectAtIndex:1] intValue] * ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
+    NSArray *sortedNumbers = [[numberSet allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:NO] ]];
+    
+    NSNumber *secondHighest;
+    
+    if ([sortedNumbers count] > 1){
+        secondHighest = sortedNumbers[1];
+    }
+    
+    int index1 = [fftData indexOfObject:trueMaxNumber];
+    int index2 = [fftData indexOfObject:secondHighest];
+    
+    
+    _frequencyOne = (index1* ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
+    _frequencyTwo = (index2* ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
     
     self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyOne];
     self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyTwo];
