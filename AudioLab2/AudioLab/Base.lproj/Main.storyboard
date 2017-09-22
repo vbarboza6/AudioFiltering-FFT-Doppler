@@ -104,21 +104,21 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="One" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cHg-ZS-SQY">
-                                <rect key="frame" x="40" y="134" width="42" height="21"/>
+                                <rect key="frame" x="40" y="134" width="110" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="42" id="Sz6-w4-EVP"/>
+                                    <constraint firstAttribute="width" constant="110" id="Sz6-w4-EVP"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Two" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fas-eB-DbX">
-                                <rect key="frame" x="238" y="134" width="42" height="21"/>
+                                <rect key="frame" x="238" y="134" width="121" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="42" id="seb-Ac-lyU"/>
+                                    <constraint firstAttribute="width" constant="121" id="seb-Ac-lyU"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -126,7 +126,7 @@
                         <constraints>
                             <constraint firstItem="Fas-eB-DbX" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="70" id="OcR-Ys-028"/>
                             <constraint firstItem="cHg-ZS-SQY" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="24" id="PEY-pf-VZw"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="Fas-eB-DbX" secondAttribute="trailing" constant="79" id="ZYa-YL-DAj"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Fas-eB-DbX" secondAttribute="trailing" id="ZYa-YL-DAj"/>
                             <constraint firstItem="cHg-ZS-SQY" firstAttribute="baseline" secondItem="Fas-eB-DbX" secondAttribute="baseline" id="oRu-iV-ANi"/>
                         </constraints>
                     </view>

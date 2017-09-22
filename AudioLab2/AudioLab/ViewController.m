@@ -84,10 +84,11 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     
-    [self.graphHelper setFullScreenBounds];
+    [self.graphHelper setScreenBoundsBottomHalf];
   
     
     __block ViewController * __weak  weakSelf = self;
+    
     
     [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
             [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
@@ -102,7 +103,6 @@
         [self.audioManager pause];
     }
 }
-
 
 #pragma mark GLK Inherited Functions
 //  override the GLKViewController update function, from OpenGLES
@@ -127,6 +127,7 @@
     // Find max for maximum array
     
     NSInteger windowLength = 49;
+    NSInteger fftBufferSize = BUFFER_SIZE/2;
     NSInteger fftSize = (BUFFER_SIZE/2) - 49;
     
     for(int k = 0; k < fftSize; k++){
@@ -134,24 +135,37 @@
         NSMutableArray *tempBatch = [NSMutableArray arrayWithCapacity:windowLength];
         
         for(int i = 0; i <= windowLength; i++){
-            
+          
             NSNumber * number = [[NSNumber alloc] initWithFloat:fftMagnitude[i+k]];
             [tempBatch addObject:number];
         }
         
-        //NSNumber * medianNumber = [[NSNumber alloc] initWithFloat:fftMagnitude[25]];
         NSNumber * medianNumber = [tempBatch objectAtIndex:25];
         NSNumber *maxNumber = [tempBatch valueForKeyPath:@"@max.self"];
         
         if(medianNumber == maxNumber){
-            [maximum addObject: maxNumber];
-            [indexes addObject:[NSNumber numberWithInteger:k]];
+            
+            if([maximum count] < 2){
+                [maximum addObject: maxNumber];
+                [indexes addObject:[NSNumber numberWithInt:k]];
+            }
+            else{
+                if(maxNumber > [maximum objectAtIndex:0]){
+                    [maximum replaceObjectAtIndex:0 withObject: maxNumber];
+                    [indexes replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:k]];
+                }
+                else if(maxNumber < [maximum objectAtIndex:0] && maxNumber > [maximum objectAtIndex:1]){
+                    [maximum replaceObjectAtIndex:1 withObject:maxNumber];
+                    [indexes replaceObjectAtIndex:1 withObject:[NSNumber numberWithInt:k]];
+                }
+            }
         }
 
     }
     
-    _frequencyOne = ((int)[indexes objectAtIndex:0] * 44100) / 512;
-    _frequencyTwo = ((int)[indexes objectAtIndex:1] * 44100) / 512;
+    
+    _frequencyOne = ([[indexes objectAtIndex:0] intValue] * ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
+    _frequencyTwo = ([[indexes objectAtIndex:1] intValue] * ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
     
     self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyOne];
     self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyTwo];
@@ -164,7 +178,7 @@
                      withZeroValue:-60];
     
 
-   
+    [self.graphHelper update]; // update the graph
     free(arrayData);
     free(fftMagnitude);
 }
