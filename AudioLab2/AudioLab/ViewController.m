@@ -176,13 +176,31 @@
     
     int index1 = [fftData indexOfObject:trueMaxNumber];
     int index2 = [fftData indexOfObject:secondHighest];
+    float fpeak1 = 0;
+    float fpeak2 = 0;
+    
+    if(index1 > 0 && index2 > 0){
+        
+        int indexleft1 = index1 - 1;
+        int indexright1 = index1 + 1;
+        int indexleft2 = index2 - 1;
+        int indexright2 = index2 + 1;
+        
+        float mOneLeft = [[fftData objectAtIndex:indexleft1] floatValue];
+        float mOneRight = [[fftData objectAtIndex:indexright1] floatValue];
+        float mTwoLeft = [[fftData objectAtIndex:indexleft2] floatValue];
+        float mTwoRight = [[fftData objectAtIndex:indexright2] floatValue];
+        
+        fpeak1 = index1 + ((mOneRight - [trueMaxNumber floatValue]) / ((2 * [trueMaxNumber floatValue]) - mOneLeft - [trueMaxNumber floatValue])) * ((44100/fftBufferSize)/2);
+        fpeak2 = index2 + ((mTwoRight - [secondHighest floatValue]) / ((2 * [secondHighest floatValue]) - mTwoLeft - [secondHighest floatValue])) * ((44100/fftBufferSize)/2);
+    }
     
     
-    _frequencyOne = (index1* ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
-    _frequencyTwo = (index2* ([self.audioManager samplingRate] / fftBufferSize)) / 1000;
+    _frequencyOne = (fpeak1 * ([self.audioManager samplingRate] / fftBufferSize));
+    _frequencyTwo = (fpeak2 * ([self.audioManager samplingRate] / fftBufferSize));
     
-    self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyOne];
-    self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f kHz",_frequencyTwo];
+    self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f Hz",_frequencyOne];
+    self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f Hz",_frequencyTwo];
     
     // graph the FFT Data
     [self.graphHelper setGraphData:fftMagnitude

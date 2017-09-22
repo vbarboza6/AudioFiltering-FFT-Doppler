@@ -26,7 +26,7 @@
                   moduleName = "AudioLab"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/vbarboza/Documents/AudioFiltering-FFT-Doppler/AudioLab2/AudioLab/ViewController.m"
-                  timestampString = "527797701.104178"
+                  timestampString = "527799204.659622"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "25"
@@ -41,7 +41,7 @@
                   moduleName = "AudioLab"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/vbarboza/Documents/AudioFiltering-FFT-Doppler/AudioLab2/AudioLab/ViewController.m"
-                  timestampString = "527797701.107219"
+                  timestampString = "527799204.662296"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "25"
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AudioLab/ViewController.m"
-            timestampString = "527797634.763597"
+            timestampString = "527799204.533919"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "182"
-            endingLineNumber = "182"
+            startingLineNumber = "200"
+            endingLineNumber = "200"
             landmarkName = "-update"
             landmarkType = "7">
          </BreakpointContent>
@@ -118,15 +118,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AudioLab/ViewController.m"
-            timestampString = "527797634.763597"
+            timestampString = "527799204.533919"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
             landmarkName = "-update"
             landmarkType = "7">
          </BreakpointContent>
@@ -170,11 +170,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AudioLab/ViewController.m"
-            timestampString = "527797634.763597"
+            timestampString = "527799204.533919"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "181"
-            endingLineNumber = "181"
+            startingLineNumber = "199"
+            endingLineNumber = "199"
             landmarkName = "-update"
             landmarkType = "7">
          </BreakpointContent>
