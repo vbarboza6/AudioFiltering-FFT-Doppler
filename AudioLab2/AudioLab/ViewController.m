@@ -196,8 +196,8 @@
     }
     
     
-    _frequencyOne = (fpeak1 * ([self.audioManager samplingRate] / fftBufferSize));
-    _frequencyTwo = (fpeak2 * ([self.audioManager samplingRate] / fftBufferSize));
+    _frequencyOne = (fpeak1 * ([self.audioManager samplingRate] / fftBufferSize)) / 2;
+    _frequencyTwo = (fpeak2 * ([self.audioManager samplingRate] / fftBufferSize)) / 2;
     
     self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f Hz",_frequencyOne];
     self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f Hz",_frequencyTwo];
