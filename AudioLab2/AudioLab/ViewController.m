@@ -23,6 +23,10 @@
 @property (strong, nonatomic) AudioFileReader *fileReader;
 @property (nonatomic) float frequencyOne;
 @property (nonatomic) float frequencyTwo;
+@property (nonatomic) float lockedFrequencyOne;
+@property (nonatomic) float lockedFrequencyTwo;
+@property (strong, nonatomic)NSMutableArray *maximum;
+@property (strong, nonatomic)NSMutableArray *indexes;
 @property (weak, nonatomic) IBOutlet UILabel *freqLabelOne;
 @property (weak, nonatomic) IBOutlet UILabel *freqLabelTwo;
 
@@ -77,6 +81,22 @@
     return _fileReader;
 }
 
+-(NSMutableArray*)maximum{
+    if(!_maximum){
+        _maximum = [NSMutableArray array];
+    }
+    return _maximum;
+}
+
+-(NSMutableArray*)indexes{
+    if(!_indexes){
+        _indexes = [NSMutableArray array];
+    }
+    return _indexes;
+}
+
+
+
 
 #pragma mark VC Life Cycle
 - (void)viewDidLoad {
@@ -112,8 +132,8 @@
     // get audio stream data
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
     float* fftMagnitude = malloc(sizeof(float)*BUFFER_SIZE/2);
-    NSMutableArray *maximum = [NSMutableArray array];
-    NSMutableArray *indexes = [NSMutableArray array];
+//    NSMutableArray *maximum = [NSMutableArray array];
+//    NSMutableArray *indexes = [NSMutableArray array];
     NSMutableArray *fftData = [NSMutableArray array];
     
     
@@ -125,11 +145,11 @@
     
 
     
-    NSInteger windowLength = 49;
+    NSInteger windowLength = 5;
     NSInteger fftBufferSize = BUFFER_SIZE/2;
-    NSInteger fftSize = (BUFFER_SIZE/2) - 49;
+    NSInteger fftSize = (BUFFER_SIZE/2) - 5;
     
-    for(int k = 0; k < fftSize; k++){
+    for(int k = 4; k < fftSize; k++){
         
         NSMutableArray *tempBatch = [NSMutableArray arrayWithCapacity:windowLength];
         [fftData addObject:[NSNumber numberWithFloat: fftMagnitude[k]]];
@@ -140,51 +160,61 @@
             [tempBatch addObject:number];
         }
         
-        NSNumber * medianNumber = [tempBatch objectAtIndex:25];
+        NSNumber * medianNumber = [tempBatch objectAtIndex:3];
         NSNumber *maxNumber = [tempBatch valueForKeyPath:@"@max.self"];
         
         if(medianNumber == maxNumber){
             
-            if([maximum count] < 2){
-                [maximum addObject: maxNumber];
-                [indexes addObject:[NSNumber numberWithInt:k]];
+            if([self.maximum count] < 2 ){
+                [self.maximum addObject: maxNumber];
+                [self.indexes addObject:[NSNumber numberWithInt:k]];
             }
             else{
-                if(maxNumber > [maximum objectAtIndex:0]){
-                    [maximum replaceObjectAtIndex:0 withObject: maxNumber];
-                    [indexes replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:k]];
-                }
-                else if(maxNumber < [maximum objectAtIndex:0] && maxNumber > [maximum objectAtIndex:1]){
-                    [maximum replaceObjectAtIndex:1 withObject:maxNumber];
-                    [indexes replaceObjectAtIndex:1 withObject:[NSNumber numberWithInt:k]];
+                if([maxNumber floatValue] > (float)-15){
+                    if([maxNumber floatValue] > [[self.maximum objectAtIndex:0] floatValue]){
+                        [self.maximum replaceObjectAtIndex:0 withObject: maxNumber];
+                        [self.indexes replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:k]];
+                    }
+                    if([maxNumber floatValue] > [[self.maximum objectAtIndex:1] floatValue] && [maxNumber floatValue] != [[self.maximum objectAtIndex:0] floatValue] ){
+                        [self.maximum replaceObjectAtIndex:1 withObject:maxNumber];
+                        [self.indexes replaceObjectAtIndex:1 withObject:[NSNumber numberWithInt:k]];
+                    }
                 }
             }
         }
 
     }
     
-    NSNumber *trueMaxNumber = [fftData valueForKeyPath:@"@max.self"];
-    NSSet *numberSet = [NSSet setWithArray:fftData];
+//    NSNumber *trueMaxNumber = [fftData valueForKeyPath:@"@max.self"];
+//    NSSet *numberSet = [NSSet setWithArray:fftData];
+//    
+//    NSArray *sortedNumbers = [[numberSet allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:NO] ]];
+//    
+//    NSNumber *secondHighest;
+//    
+//    if ([sortedNumbers count] > 1){
+//        secondHighest = sortedNumbers[1];
+//    }
+//    
+//    long index1 = [fftData indexOfObject:trueMaxNumber];
+//    long index2 = [fftData indexOfObject:secondHighest];
     
-    NSArray *sortedNumbers = [[numberSet allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:NO] ]];
     
-    NSNumber *secondHighest;
+    long index1 = [[self.indexes objectAtIndex:0] longValue];
+    long index2 = [[self.indexes objectAtIndex:1] longValue];
     
-    if ([sortedNumbers count] > 1){
-        secondHighest = sortedNumbers[1];
-    }
-    
-    int index1 = [fftData indexOfObject:trueMaxNumber];
-    int index2 = [fftData indexOfObject:secondHighest];
-    float fpeak1 = 0;
-    float fpeak2 = 0;
+    NSNumber *secondHighest = [self.maximum objectAtIndex:0];
+    NSNumber *trueMaxNumber = [self.maximum objectAtIndex:1];
+
+    int fpeak1 = 0;
+    int fpeak2 = 0;
     
     if(index1 > 0 && index2 > 0){
         
-        int indexleft1 = index1 - 1;
-        int indexright1 = index1 + 1;
-        int indexleft2 = index2 - 1;
-        int indexright2 = index2 + 1;
+        long indexleft1 = index1 - 1;
+        long indexright1 = index1 + 1;
+        long indexleft2 = index2 - 1;
+        long indexright2 = index2 + 1;
         
         float mOneLeft = [[fftData objectAtIndex:indexleft1] floatValue];
         float mOneRight = [[fftData objectAtIndex:indexright1] floatValue];
@@ -199,8 +229,8 @@
     _frequencyOne = (fpeak1 * ([self.audioManager samplingRate] / fftBufferSize)) / 2;
     _frequencyTwo = (fpeak2 * ([self.audioManager samplingRate] / fftBufferSize)) / 2;
     
-    self.freqLabelOne.text = [NSString stringWithFormat:@"%.4f Hz",_frequencyOne];
-    self.freqLabelTwo.text = [NSString stringWithFormat:@"%.4f Hz",_frequencyTwo];
+    self.freqLabelOne.text = [NSString stringWithFormat:@"%.2f Hz : %@",_frequencyOne, trueMaxNumber];
+    self.freqLabelTwo.text = [NSString stringWithFormat:@"%.2f Hz : %@",_frequencyTwo, secondHighest];
     
     // graph the FFT Data
     [self.graphHelper setGraphData:fftMagnitude
